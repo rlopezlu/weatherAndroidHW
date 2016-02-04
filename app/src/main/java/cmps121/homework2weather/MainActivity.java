@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import cmps121.homework2weather.Response.*;
 import okhttp3.OkHttpClient;
@@ -18,27 +19,14 @@ import retrofit2.http.GET;
 
 public class MainActivity extends AppCompatActivity {
 
-    protected final String TAG = getClass().getSimpleName();
-    // UX handlers
-    private TextView    mCityNameTextView;
-    private TextView    mCountryNameTextView;
-    private TextView    mCodTextView;
-    private TextView    mCoordsTextView;
-    private TextView    mHumidity;
-    private TextView mTempTextView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
 
-    /**
-     * This is main class object that should save all data upon configuration changes.
-     * This object is saved by the 'onRetainCustomNonConfigurationInstance' method.
-     */
-
     public void searchWeather(View view){
+        Toast.makeText(getApplicationContext(),"Fetching data", Toast.LENGTH_SHORT).show();
         Log.i("weatherHere", "here");
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         // set your desired log level
@@ -64,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("result", response.body().getResponse().getResult().toString());
                 } catch (java.lang.NullPointerException e){
                     Log.i("result", "result was null");
+                    Toast.makeText(getApplicationContext(),"Server might be down. No data found.", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 catch (Exception e){
+                    Toast.makeText(getApplicationContext(),"Error loading data. Please try again", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -76,36 +66,40 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 } catch (Exception e){
+                    Toast.makeText(getApplicationContext(),"Error loading data. Please try again", Toast.LENGTH_SHORT).show();
                     return;
                 }
-try{
 
-    String fahrString = response.body().getResponse().getConditions().getTempF().toString();
-    String city = response.body().getResponse().getConditions().getObservationLocation().getCity();
-    String state = response.body().getResponse().getConditions().getObservationLocation().getState();
-    String humidity = response.body().getResponse().getConditions().getRelativeHumidity();
-    String weather = response.body().getResponse().getConditions().getWeather();
-    Log.i("WeatherHere", "succesful call");
-    Log.i("WeatherHere", fahrString);
+                try{
+                    String fahrString = response.body().getResponse().getConditions().getTempF().toString();
+                    String city = response.body().getResponse().getConditions().getObservationLocation().getCity();
+                    String state = response.body().getResponse().getConditions().getObservationLocation().getState();
+                    String humidity = response.body().getResponse().getConditions().getRelativeHumidity();
+                    String weather = response.body().getResponse().getConditions().getWeather();
+                    String lat = response.body().getResponse().getConditions().getObservationLocation().getLatitude();
+                    Log.i("WeatherHere", "succesful call");
+                    Log.i("WeatherHere", fahrString);
 
-    TextView Temp = (TextView) findViewById(R.id.TempView);
-    TextView City = (TextView) findViewById(R.id.CityView);
-    TextView State = (TextView) findViewById(R.id.StateView);
-    TextView Hum = (TextView) findViewById(R.id.HumView);
-    TextView Weather = (TextView) findViewById(R.id.WeatherView);
+                    TextView Temp = (TextView) findViewById(R.id.TempView);
+                    TextView City = (TextView) findViewById(R.id.CityView);
+                    TextView State = (TextView) findViewById(R.id.StateView);
+                    TextView Hum = (TextView) findViewById(R.id.HumView);
+                    TextView Weather = (TextView) findViewById(R.id.WeatherView);
+                    TextView Lat = (TextView) findViewById(R.id.LatView);
 
-    Temp.setText(fahrString);
-    City.setText(city);
-    State.setText(state);
-    Hum.setText(humidity);
-    Weather.setText(weather);
+                    Temp.setText(fahrString + "°F");
+                    City.setText(city);
+                    State.setText(state);
+                    Hum.setText(humidity);
+                    Weather.setText(weather);
+                    Lat.setText(lat);
 
-    Log.i("WeatherHere", response.body().getResponse().getResult());
-
-} catch (Exception e){
-    return;
-}
-
+                    Log.i("WeatherHere", response.body().getResponse().getResult());
+                } catch (Exception e){
+                    Toast.makeText(getApplicationContext(),"Error loading data. Please try again", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Toast.makeText(getApplicationContext(),"Success!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
